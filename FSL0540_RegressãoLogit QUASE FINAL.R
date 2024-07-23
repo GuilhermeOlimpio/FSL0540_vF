@@ -139,7 +139,7 @@ summary(dados)
 # PASSO 4. Checagem das categorias de referência -------------------------------
 
 levels(dados$expectativa)  # Estudar e Trabalhar= categoria de referência
-dados$expectativa <- relevel(dados$expectativa, ref="Estudar e Trabalhar")
+dados$expectativa <- relevel(dados$expectativa, ref="Estudar")
 levels(dados$raça)      # Branca = categoria de referência
 levels(dados$mae)       # Fund- = categoria de referência
 dados$mae <- relevel(dados$mae, ref="Superior+")
@@ -284,23 +284,44 @@ dados_prev_long <- reshape2::melt(dados_prev,
                                   value.name = "Probabilidades",
                                   variable.name="Expectativa")
 
+summary(dados_prev_long)
+class(dados_prev_long$Probabilidades)
+
+install.packages("readr")
+library(readr)
+
+write.csv(dados_prev_long, "dados_prev_long.csv")
+exists("dados_prev_long")
+getwd()
+
 # MAE
 reg_mae <- ggplot(dados_prev_long, aes(x= NSEAluno, y = Probabilidades, color = mae))+
-              geom_smooth(method="loess")+
+              geom_smooth(method="gam")+
               labs(x = "Escore socioeconômico")+
-              scale_y_continuous(label = scales::percent_format(decimal.mark = ","))+
+              scale_y_continuous(labels = scales::percent_format(decimal.mark = ","))+
               facet_grid(Expectativa ~ .)+
               theme_bw()+
               guides(color = guide_legend(override.aes = list(fill = NA)))
 
 # Raça
 reg_raça <- ggplot(dados_prev_long, aes(x= NSEAluno, y = Probabilidades, color = raça))+
-  geom_smooth(method="loess", size=0.5)+
+              geom_smooth(method="gam")+
+              labs(x = "Escore socioeconômico")+
+              scale_y_continuous(labels = scales::percent_format(decimal.mark = ","))+
+              facet_grid(Expectativa ~ .)+
+              theme_bw()+
+              guides(color = guide_legend(override.aes = list(fill = NA)))
+
+# nse
+reg_nse <- ggplot(dados_prev_long, aes(x= NSEAluno, y = Probabilidades, color = faixasNSE))+
+  geom_smooth(method="gam")+
   labs(x = "Escore socioeconômico")+
-  scale_y_continuous(label = scales::percent_format(decimal.mark = ","))+
+  scale_y_continuous(labels = scales::percent_format(decimal.mark = ","))+
   facet_grid(Expectativa ~ .)+
   theme_bw()+
   guides(color = guide_legend(override.aes = list(fill = NA)))
 
-reg_raça
-reg_mae
+
+plot(reg_raça)
+plot(reg_mae)
+plot(reg_nse)
